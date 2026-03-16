@@ -5,7 +5,7 @@ Isabelle Gallardo
 
 # Program Details:
 
-This program is a simple payroll system made for MotorPH that allows the user to login both as an employee or part of the payroll staff. For employees, it shows their basic information, and for the payroll staff, it shows and computes the employee's salary and deductions.
+This program is a simple payroll system made for MotorPH that allows the user to login both as an employee or part of the payroll staff. For employees, it shows their basic information such as **(employee no., employee name, and birthday)** and for the payroll staff, it shows and computes the employee's salary and deductions from **june to december.**
 
 # Project Plan: 
 
