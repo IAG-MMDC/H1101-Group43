@@ -33,8 +33,13 @@ public class MotorPH {
         System.out.print("Enter password: ");
         String inputPass = scan.nextLine();
        
-        //Access verification 
-        if (inputUser.equals("employee") && inputPass.equals("12345")) {
+        // Access verification (improved logic: username checked first, then password)
+        if (inputUser.equals("employee")) {
+
+            if (!inputPass.equals("12345")) {
+                System.out.println("Incorrect password.");
+                return;
+            }
 
             System.out.println("\n1. Enter employee number.");
             System.out.println("2. Exit the program.");
@@ -59,7 +64,13 @@ public class MotorPH {
             } else {
                 System.out.println("Exiting program...");
             }
-        }else if (inputUser.equals("payroll_staff") && inputPass.equals("12345")) {
+
+        } else if (inputUser.equals("payroll_staff")) {
+
+            if (!inputPass.equals("12345")) {
+                System.out.println("Incorrect password.");
+                return;
+            }
             
             System.out.println("\n1. Process Payroll."); 
             System.out.println("2. Exit the program.");
@@ -103,15 +114,14 @@ public class MotorPH {
             } else {
                 System.out.println("Exiting program...");
             }
-        } else if ((!inputUser.equals("payroll_staff") && !inputUser.equals("employee")) && !inputPass.equals("12345")) {
-                System.out.print("Incorrect username and password.");
-        } else if (!inputPass.equals("12345")) {
-                System.out.println("Incorrect password.");
+
         } else {
-                System.out.println("Incorrect username");
+            System.out.println("Incorrect username.");
         }
     }
-    //Reads employee data while assigning the value to its designated array
+
+    // Reads the employee details file and stores each value in the matching array.
+    // This allows the program to access employee information later without reopening the file.
     public static void readEmpData() {
         
        try (BufferedReader br = new BufferedReader(new FileReader(empCsv))) { 
@@ -138,7 +148,8 @@ public class MotorPH {
             } 
        
         }
-    //Prints employee details
+
+    // Prints the selected employee's basic information.
     public static void printEmpDetails(int i){ 
         System.out.println("\n===================================");
         System.out.println("Employee # : " + empNos[i]);
@@ -146,9 +157,10 @@ public class MotorPH {
         System.out.println("Birthday : " + empBirthdays[i]);
         System.out.println("===================================");
    } 
-   //Reads the attendance csv 
-   //Loops the First Cut-off and Second Cut-off per month starting June until December
-   //Prints payroll details
+
+   // Reads the attendance file and computes payroll for each cut-off period.
+   // The first cut-off covers days 1 to 15, while the second cut-off covers days 16 to the end of the month.
+   // It also calculates salary deductions and net pay based on the monthly gross salary.
    public static void readAttData(String empNo, double hourlyRate) {
    
    for (int month = 6; month <= 12; month++) { 
@@ -185,8 +197,12 @@ public class MotorPH {
                     int logoutHour = Integer.parseInt(logoutParts[0]);
                     int logoutMin = Integer.parseInt(logoutParts[1]);
 
+                    // This converts the login and logout time into total hours worked.
+                    // It applies the program's attendance rules, including the grace period,
+                    // the fixed lunch deduction, and the maximum allowable working time.
                     double hours = computeHours(loginHour, loginMin, logoutHour,logoutMin);
 
+                    // Attendance is split by cut-off period so payroll can be displayed per half-month.
                     if (attDay <= 15) {
                         firstCutoff += hours;
                     } else {
@@ -201,6 +217,7 @@ public class MotorPH {
             double firstGrossSalary = firstCutoff * hourlyRate;
             double grossMonthlySalary = (firstCutoff + secondCutoff) * hourlyRate;
             
+            // These formulas compute mandatory employee deductions based on gross monthly salary.
             double sss = computeSSS(grossMonthlySalary);
             double pagIbig = computePagIbig(grossMonthlySalary);
             double philHealth = computePhilHealth(grossMonthlySalary);
@@ -209,12 +226,14 @@ public class MotorPH {
             double witholdingTax = computeWithholdingTax(taxableIncome);
             double netSalary = taxableIncome - witholdingTax;
             
+            // This prints the payroll summary for the selected employee and month.
             printPayrollDetails(monthName, firstCutoff, secondCutoff, daysInMonth, firstGrossSalary,
             grossMonthlySalary, totalDeductions, sss, philHealth, pagIbig,witholdingTax, netSalary);    
   
         }
    }
-   //Returns month name depending on the month
+
+   // Returns the month name based on the numeric month value.
     public static String getMonthName(int month) {
        
             switch (month) {
@@ -228,7 +247,8 @@ public class MotorPH {
                 default: return  "";
             }
     }
-    //Returns  number of days in month depending on the month
+
+    // Returns the number of days in the month as a string for display purposes.
     public static String getDaysInMonth(int month) {
         
             switch (month) {
@@ -243,7 +263,7 @@ public class MotorPH {
             }
     }
     
-    //Method for printing payroll details
+    // Prints the payroll breakdown, including hours worked, gross pay, deductions, and net salary.
     public static void printPayrollDetails(String monthName, double firstCutoff, double secondCutoff, String daysInMonth, double firstGrossSalary,
     double grossMonthlySalary, double totalDeductions, double sss, double philHealth, double pagIbig, double withholdingTax, double netSalary) {     
             System.out.println("\nCutoff Date: " + monthName + " 1 to 15");
@@ -262,7 +282,9 @@ public class MotorPH {
             System.out.println("Net Salary: "+ netSalary);
     }
     
-    //Calculates the hours worked
+    // Calculates the total hours worked from the login and logout time.
+    // It applies the 8:00 AM start time, the 8:10 AM grace period, and the 1-hour lunch deduction.
+    // If the employee logs out after 5:00 PM, the time is capped at 5:00 PM.
     public static double computeHours(int loginHour, int loginMin, int logoutHour, int logoutMin) {
         int graceLimit = 8 * 60 + 10;
         int startTime = 8 * 60;
@@ -286,7 +308,7 @@ public class MotorPH {
         return minutesWorked / 60.0;
     }
     
-    //Calculate SSS Contribution
+    // Calculates the SSS contribution based on the employee's gross monthly salary.
     public static double computeSSS(double grossMonthlySalary) {
 
         if (grossMonthlySalary < 3250) {
@@ -305,7 +327,7 @@ public class MotorPH {
         return contribution;
     }
     
-    //Calculate Pag-Ibig Contribution
+    // Calculates the Pag-IBIG contribution using the salary range and contribution cap.
     public static double computePagIbig(double grossMonthlySalary) { 
         if (grossMonthlySalary >= 1000 && grossMonthlySalary <= 1500) {
             return Math.min(grossMonthlySalary * .03, 100);
@@ -316,7 +338,7 @@ public class MotorPH {
         }
     }
 
-    //Calculate PhilHealth Contribution
+    // Calculates the PhilHealth contribution based on the employee's gross monthly salary.
     public static double computePhilHealth(double grossMonthlySalary) { 
         if (grossMonthlySalary <= 10_000) {
             return (150.00);
@@ -327,17 +349,17 @@ public class MotorPH {
        }      
     }
 
-    //Calculate Total Deductions
+    // Adds all mandatory contributions to get the total deductions.
     public static double computeTotalDeductions(double sss, double philhealth, double pagibig) { 
         return sss + philhealth + pagibig;        
     }
 
-    //Calculate Taxable Income
+    // Subtracts deductions from gross salary to get taxable income.
     public static double computeTaxableIncome(double grossMonthlySalary, double totalDeductions) { 
         return grossMonthlySalary - totalDeductions;
     }
 
-    //Calculate Withholding Tax
+    // Calculates withholding tax using the tax brackets for taxable income.
     public static double computeWithholdingTax(double taxableIncome) { 
         if (taxableIncome < 20_833) {
             return 0;
@@ -354,4 +376,3 @@ public class MotorPH {
         }
     }
 }
-
