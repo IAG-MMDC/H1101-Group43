@@ -118,8 +118,9 @@ public class MotorPH {
         }
     }
 
-    /*Menu for employee.
-    * Allows the user to look up employee details by employee number.
+    /*.
+    *Menu for employee.
+    *Allows the user to look up employee details by employee number.
      */
     public static void employeeMenu(Scanner scan) {
         System.out.println("\n1. Enter employee number.");
@@ -139,7 +140,7 @@ public class MotorPH {
 
     /* 
     *Menu for payroll staff.
-    *Allows payroll staff to process payroll for one employee or for all employee.
+    *Allows payroll staff to process payroll for one employee or for all employees.
      */
     public static void payrollStaffMenu(Scanner scan) {
         System.out.println("\n1. Process Payroll.");
@@ -176,7 +177,8 @@ public class MotorPH {
         }
     }
 
-    /*Asks the user to enter the employee number, the program then searches the empNo list.
+    /*
+    *Asks the user to enter the employee number, the program then searches the empNo list.
     *The method returns the index of the matching employee, and returns -1 if employee number is not found.
      */
     public static int findEmployeeNo(Scanner scan) {
@@ -206,12 +208,13 @@ public class MotorPH {
         System.out.println("======================================");
     }
 
-    /* Reads employee details csv file using bufferedreader and filereader and stores it to its assigned lists.
-    * Employee # --> added and stored to empNo list
-    * Last Name --> added and stored to empLastName list
-    * First Name --> added and stored to empFirstName list
-    * Birthday --> added and stored to empBirthday list
-    * Hourly rate --> added and stored to hourlyRate list
+    /* 
+    *Reads employee details csv file using bufferedreader and filereader and stores it to its assigned lists.
+    *Employee # --> added and stored to empNo list.
+    *Last Name --> added and stored to empLastName list.
+    *First Name --> added and stored to empFirstName list.
+    *Birthday --> added and stored to empBirthday list.
+    *Hourly rate --> added and stored to hourlyRate list.
      */
     public static void readEmployeeDetails() {
         try (BufferedReader br = new BufferedReader(new FileReader(empCsv))) {
@@ -236,7 +239,8 @@ public class MotorPH {
         }
     }
 
-    /*Reads attendance record csv file using bufferedreader and filereader and stores it to its assigned lists.
+    /*
+    *Reads attendance record csv file using bufferedreader and filereader and stores it to its assigned lists.
     *Employee # --> added and stored to attEmpNo list.
     *Month --> added and stored to attMonth list.
     *Day --> added and stored to attDay list.
@@ -273,16 +277,14 @@ public class MotorPH {
             e.printStackTrace();
         }
     }
-
-    /*Iterates every month from June to December 2024 and computes the first cut-off payroll
-    *and second cut-off payroll for the given employee.
-     */
+    
+    //Iterates every month from June to December 2024 and computes the first cut-off payroll and second cut-off payroll for the given employee. 
     public static void processPayroll(String empNo, double hourlyRate) {
         for (int month = 6; month <= 12; month++) {
             double firstCutOffHours = 0;
             double secondCutOffHours = 0;
 
-            //Scans the attendance records and skips details that isn't matching with the employee being called.
+            //Scans the attendance records and skips attendance records that isn't matched with the employee being called.
             for (int i = 0; i < attEmpNo.size(); i++) {
                 if (!attEmpNo.get(i).equals(empNo)) {
                     continue;
@@ -303,14 +305,15 @@ public class MotorPH {
                     secondCutOffHours += hoursWorked;
                 }
             }
-            //Print the payslip for each cut-off period.
+            //Prints payslip for each cut-off period.
             computeFirstCutOff(month, firstCutOffHours, hourlyRate);
             computeSecondCutOff(month, firstCutOffHours, secondCutOffHours, hourlyRate);
         }
     }
 
-    /*Displays the first cut-off (1st - 15th) payslip.
-    *No deductions are applied hence gross salary and net salary are the same amount.
+    /*
+    *Displays the first cut-off (1st - 15th) payslip.
+    *No deductions are applied, hence gross salary and net salary are the same amount.
     *Built-in month method is used to display the correct month name.
      */
     public static void computeFirstCutOff(int month, double firstCutOffHours, double hourlyRate) {
@@ -324,7 +327,8 @@ public class MotorPH {
         System.out.println("Net Salary: " + firstCutOffGrossSalary);
     }
 
-    /*Displays the second cut-off (16th- end of month) payslip.
+    /*
+    *Displays the second cut-off (16th- end of month) payslip.
     *Deductions are computed(SSS, Pag-IBIG, PhilHealth) against the combined gross salary of both cut-offs of the month.
     *Built-in month method is used to display the correct month name.
     *Built-in daysInMonth method is used to display the correct end of month.
@@ -357,24 +361,25 @@ public class MotorPH {
         System.out.println("\n======================================");
     }
 
-    /*Computes the hours worked in a single work day.
+    /*
+    *Computes the hours worked in a single work day.
     *Grace limit: logins at or before 8:10 AM is treated as 8:00 AM (no late deduction).
     *Overtime cap: logouts after 5:00 PM is not counted; end time capped at 5:00 PM (no overtime pay).
     *Lunch deduction: 60 minutes is deducted if the employee worked more than an hour.
     *Late minutes deduction: late minutes is deducted from maximum working minutes. 
-    *Returns hours worked as decimal. 
+    *Return hours worked as decimal. 
      */
     public static double computeHoursWorked(LocalTime login, LocalTime logout) {
         LocalTime graceLimit = LocalTime.of(8, 10);
         LocalTime startTime = LocalTime.of(8, 00);
         LocalTime endTime = LocalTime.of(17, 00);
 
-        //Cap logout at end time (overtime not counted)
+        //Cap logout at end time (overtime not counted).
         if (logout.isAfter(endTime)) {
             logout = endTime;
         }
 
-        //Login within grace limit time is treated on time.
+        //Login within grace limit time is treated as on time.
         if (!login.isAfter(graceLimit)) {
             login = startTime;
         }
@@ -395,7 +400,8 @@ public class MotorPH {
         return (double) minutesWorked / MINUTES_PER_HOUR;
     }
 
-    /*Computes the employee's SSS Contribution. 
+    /*
+    *Computes the employee's SSS Contribution. 
     *Compensation range below PHP 3250 --> PHP 135 contribution.
     *Compensation range from PHP 3250 to 24749 --> PHP 135 + PHP 22.50 for each PHP 500 increment above PHP 3250.
     *Compensation range PHP 24750 and above --> PHP 1,125 contribution. 
@@ -417,7 +423,8 @@ public class MotorPH {
         return contribution;
     }
 
-    /*Computes the employee's monthly PagIBIG Contribution. 
+    /*
+    *Computes the employee's monthly PagIBIG Contribution. 
     *Monthly basic salary below PHP 1,000 --> PHP 0, no contribution.
     *Monthly basic salary at least PHP 1,000 to PHP 1,500 --> 1% of salary, capped at PHP 100.
     *Monthly basic salary over PHP 1,500 --> 2% of  salary, capped at PHP 100. 
@@ -432,7 +439,8 @@ public class MotorPH {
         }
     }
 
-    /*Computes the employee's monthly PhilHealth Contribution (employee share). 
+    /*
+    *Computes the employee's monthly PhilHealth Contribution (employee share). 
     *The total premium rate is divided equally between employee and employer.
     *Monthly basic salary at or below PHP 10000 --> PHP 150 (employee share).
     *Monthly basic salary between PHP 10000 and PHP 60000 --> (Gross monthly salary * .03) / 2.
@@ -448,7 +456,7 @@ public class MotorPH {
         }
     }
 
-    //Adds the government-mandated contributions(SSS Contribution, Philhealth Contribution, and Pag-IBIG Contribution) to get total deductions. 
+    //Adds the government-mandated contributions(SSS, Philhealth, and Pag-IBIG) to get total deductions. 
     public static double computeTotalDeductions(double sss, double philhealth, double pagibig) {
         return sss + philhealth + pagibig;
     }
